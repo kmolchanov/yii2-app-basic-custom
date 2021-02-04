@@ -1,10 +1,28 @@
 <?php
+use yii\helpers\ArrayHelper;
 
-$params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/db.php';
+$db = file_exists(__DIR__ . '/db-local.php') ?
+    ArrayHelper::merge(
+        require(__DIR__ . '/db.php'),
+        require(__DIR__ . '/db-local.php')
+    ) : require(__DIR__ . '/db.php');
+
+$params = file_exists(__DIR__ . '/params-local.php') ?
+    ArrayHelper::merge(
+        require(__DIR__ . '/params.php'),
+        require(__DIR__ . '/params-local.php')
+    ) : require(__DIR__ . '/params.php');
+
+$mailer = file_exists(__DIR__ . '/mailer-local.php') ?
+    ArrayHelper::merge(
+        require(__DIR__ . '/mailer.php'),
+        require(__DIR__ . '/mailer-local.php')
+    ) : require(__DIR__ . '/mailer.php');
 
 $config = [
-    'id' => 'basic-console',
+    'id' => 'basic-custom-console',
+    'name' => 'Basic Custom',
+    'language' => 'en-US',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'app\commands',
@@ -26,15 +44,17 @@ $config = [
             ],
         ],
         'db' => $db,
+        'mailer' => $mailer,
     ],
     'params' => $params,
-    /*
     'controllerMap' => [
-        'fixture' => [ // Fixture generation command line.
-            'class' => 'yii\faker\FixtureController',
+        'migrate' => [
+            'class' => MigrateController::className(),
+            'migrationPath' => [
+                '@app/migrations',
+            ],
         ],
     ],
-    */
 ];
 
 if (YII_ENV_DEV) {
