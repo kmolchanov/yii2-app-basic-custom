@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\ArrayHelper;
+use yii\console\controllers\MigrateController;
 
 $db = file_exists(__DIR__ . '/db-local.php') ?
     ArrayHelper::merge(
@@ -19,17 +20,22 @@ $mailer = file_exists(__DIR__ . '/mailer-local.php') ?
         require(__DIR__ . '/mailer-local.php')
     ) : require(__DIR__ . '/mailer.php');
 
+$user = file_exists(__DIR__ . '/user-local.php') ?
+    ArrayHelper::merge(
+        require(__DIR__ . '/user.php'),
+        require(__DIR__ . '/user-local.php')
+    ) : require(__DIR__ . '/user.php');
+
 $config = [
     'id' => 'basic-custom-console',
     'name' => 'Basic Custom',
-    'language' => 'en-US',
+    'language' => 'ru-RU',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'app\commands',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
-        '@tests' => '@app/tests',
     ],
     'components' => [
         'cache' => [
@@ -46,12 +52,18 @@ $config = [
         'db' => $db,
         'mailer' => $mailer,
     ],
+    'modules' => [
+        'user' => $user,
+        'rbac' => 'dektrium\rbac\RbacConsoleModule',
+    ],
     'params' => $params,
     'controllerMap' => [
         'migrate' => [
             'class' => MigrateController::className(),
             'migrationPath' => [
                 '@app/migrations',
+                '@vendor/dektrium/yii2-user/migrations',
+                '@yii/rbac/migrations',
             ],
         ],
     ],

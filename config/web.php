@@ -19,10 +19,16 @@ $mailer = file_exists(__DIR__ . '/mailer-local.php') ?
         require(__DIR__ . '/mailer-local.php')
     ) : require(__DIR__ . '/mailer.php');
 
+$user = file_exists(__DIR__ . '/user-local.php') ?
+    ArrayHelper::merge(
+        require(__DIR__ . '/user.php'),
+        require(__DIR__ . '/user-local.php')
+    ) : require(__DIR__ . '/user.php');
+
 $config = [
     'id' => 'basic-custom',
     'name' => 'Basic Custom',
-    'language' => 'en-US',
+    'language' => 'ru-RU',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'aliases' => [
@@ -36,10 +42,6 @@ $config = [
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
-        ],
-        'user' => [
-            'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -60,6 +62,24 @@ $config = [
             'showScriptName' => false,
             'rules' => [
             ],
+        ],
+        'view' => [
+            'theme' => [
+                'pathMap' => [
+                    '@dektrium/user/views' => '@app/views/user'
+                ],
+            ],
+        ],
+    ],
+    'modules' => [
+        'user' => $user,
+        'rbac' => [
+            'class' => 'dektrium\rbac\RbacWebModule',
+            'layout' => '@app/modules/admin/views/layouts/main',
+        ],
+        'admin' => [
+            'class' => 'app\modules\admin\Module',
+            'name' => 'Панель управления',
         ],
     ],
     'params' => $params,
